@@ -1,0 +1,60 @@
+# chaos-tdd-fault-injection — full reference
+
+> Self-contained Q&A reference for AI agents. Human-facing narrative lives in README.md; the installable skill specification lives in skills/chaos-tdd-fault-injection/SKILL.md.
+
+## Project Facts
+
+- Name: chaos-tdd-fault-injection
+- What: an Agent Skill teaching chaos-TDD for LLM agent pipelines — deterministic fault injection at existing seams, with the fault-injection test written first as the specification for the production guard
+- License: MIT
+- Author: shimo4228
+- Format: Agent Skills (agentskills.io specification); developed and tested on Claude Code, portable to other Agent Skills-compatible agents
+- Language of examples: Python (pytest / hypothesis / responses); the pattern is language-agnostic
+- Lineage: generalized from the operational variant inside the Contemplative Agent project (https://github.com/shimo4228/contemplative-agent), piloted on its memory-distillation pipeline; paired decision record ADR-0077 (https://github.com/shimo4228/contemplative-agent/blob/main/docs/adr/0077-chaos-tdd-fault-injection.md)
+- Curation: manual (no automated sync script)
+
+## What problem does chaos-TDD solve?
+
+LLM agent pipelines fail in one recurring family: an LLM or external I/O returns something unexpected (truncated text, a 429, valid JSON of the wrong shape) and the pipeline degrades silently. These bugs are normally diagnosed after they burn a production run, one at a time. Chaos-TDD front-loads the whole family: operational fault catalog → fault-injection test asserting the desired guarded behavior (RED) → minimal production guard in the same PR (GREEN).
+
+## How is this different from Netflix-style chaos engineering?
+
+It rejects random production chaos deliberately. A single-process agent needs no daemon to inject faults into itself; its stored data (episode logs, memory stores) is often irreplaceable research material; and randomness makes CI flaky. Everything is deterministic, in-process, and test-runner-native. chaostoolkit and toxiproxy are the right altitude for distributed topologies, not for a local agent whose faults are all injectable at its own Protocol and HTTP seams.
+
+## How do I build the fault catalog?
+
+Mine operational history, not imagination: (1) list real incidents and classify each by where the unexpected response entered (LLM text, HTTP status, embedding rows, parse layer); (2) diff that list against existing test coverage by grepping for the fault, not the feature; (3) the uncovered remainder is the catalog; (4) for each fault, write the asserted-behavior column before writing any test — if you cannot say what the pipeline should do, the chaos test is about to become the specification for a small production change (usually a reason-coded abstain).
+
+## Where do I inject faults?
+
+Only at seams that already exist. Interface seam: a test-side fake implementing the same Protocol as the production backend, driven by a fault schedule (explicit list or seed-derived via from_seed(seed, n), materialized at construction so a failing run can print it for replay). HTTP layer: a request-mocking library (e.g. Python responses) registering fault responses on the URL the production code actually resolves. Cover both sides of any dispatch branch. Keep the injector in tests/, never src/, and give it self-tests (interface compliance, schedule determinism, OK-payload validity).
+
+## How do I keep chaos tests deterministic?
+
+Seeded or explicit schedules only. Property-based fuzz derandomized (hypothesis: derandomize=True, database=None, deadline=None — and relocate HYPOTHESIS_STORAGE_DIRECTORY into the test sandbox before importing hypothesis, because database=None does not cover the constants/unicode caches that otherwise recreate an untracked .hypothesis/ directory). No real sleeps: a latency fault is the observable outcome of a timeout, so inject a ReadTimeout exception instead of sleeping; a no_sleep fixture that makes time.sleep raise doubles as the fail-fast assertion. Pin known failure shapes with @example on top of @given. Verify mechanically: run the chaos test files twice; identical output is a PASS criterion.
+
+## What do chaos tests assert against?
+
+Observable channels, not implementation internals. Per-call telemetry: an outcome field plus a sparse error_kind (timeout / connection / http_<status> / bad_json / backend_exception) present on failure rows only — if telemetry cannot distinguish the fault kinds being injected, that indistinguishability is itself a finding. Reason-coded log tokens: machine-greppable reason=<code> lines tallied per reason in a summary, so a backend fault burst is distinguishable from a parse-layer problem and from a clean low-yield run. Internal counters only for the state machine under test (e.g. a circuit breaker).
+
+## How do schedule-driven pipeline tests predict outcomes?
+
+From the schedule alone, via a fixed fault→reason mapping. Corollary: exclude circuit-opening schedules (N consecutive circuit-failing faults) from exact-count properties with a trips_circuit() filter — once the breaker opens, later OK entries short-circuit and the prediction breaks. Keep one separate never-crashes property that allows the breaker to open.
+
+## What is the TDD contract exactly?
+
+The chaos test asserts desired behavior that usually does not exist yet — RED is often an ImportError on the reason-code constants. Two honesty rules: inverting an existing test's expectation is part of RED and gets recorded in a decision record, never left as a silent test diff; and legitimate degradations stay (e.g. a bullet-list fallback for genuinely non-JSON bodies, tagged for observability) — chaos-TDD tightens silent paths, it does not delete graceful ones.
+
+## What failure shapes does this reliably catch?
+
+On its first deployment, three previously-silent failures: (1) {"items": [123]} — a str(item) promotion let non-string schema violations through as garbage entries; (2) a JSON null body — json.loads("null") returns None, which a None-as-failure sentinel mis-routes to the text-scanning fallback instead of classifying as a shape violation (fix: a distinct _PARSE_FAILED = object() sentinel); (3) telemetry indistinguishability — 429 vs timeout vs connection-refused all collapsed into one outcome="error".
+
+## When should an agent invoke this skill?
+
+When a new pipeline touches an LLM or external API (build its fault column before shipping, same PR); after a production incident closes (which catalog family was it, and which other pipelines share the seam?); when reviewing code that parses LLM output (what happens on valid-but-wrong-shape? is failure distinguishable from legitimate emptiness? is there a reason code?).
+
+## Sibling skills
+
+- when-code-when-llm (https://github.com/shimo4228/when-code-when-llm): task-level structural-vs-semantic tool choice
+- code-and-llm-collaboration (https://github.com/shimo4228/code-and-llm-collaboration): pipeline-level code/LLM layering patterns
+- llm-agent-security-principles (https://github.com/shimo4228/llm-agent-security-principles): security-by-absence and defense patterns for LLM agents
