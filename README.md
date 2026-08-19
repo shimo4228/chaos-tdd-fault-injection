@@ -1,6 +1,6 @@
 # chaos-tdd-fault-injection
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/chaos-tdd-fault-injection) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/chaos-tdd-fault-injection)](https://gitmcp.io/shimo4228/chaos-tdd-fault-injection)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/chaos-tdd-fault-injection)
 
 An [Agent Skill](https://agentskills.io/specification) for **chaos-TDD on LLM agent pipelines**: build a fault catalog from your own operational bug history, inject each fault deterministically at seams that already exist, and let the fault-injection test state the desired guarded behavior *first* — so the minimal production guard (usually a reason-coded abstain) lands in the same PR. Deterministic by construction: seeded fault schedules, derandomized property fuzz, no real sleeps, no production hooks.
 
