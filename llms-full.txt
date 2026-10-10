@@ -11,7 +11,7 @@
 - Format: Agent Skills (agentskills.io specification); developed and tested on Claude Code, portable to other Agent Skills-compatible agents
 - Language of examples: Python (pytest / hypothesis / responses); the pattern is language-agnostic
 - Lineage: generalized from the operational variant inside the Contemplative Agent project (https://github.com/shimo4228/contemplative-agent), piloted on its memory-distillation pipeline; paired decision record ADR-0077 (https://github.com/shimo4228/contemplative-agent/blob/main/docs/adr/0077-chaos-tdd-fault-injection.md)
-- Curation: manual (no automated sync script)
+- Status: curated by hand, intentionally with no sync script; changes to the Contemplative Agent variant reach this repository only when the author carries them over
 
 ## What problem does chaos-TDD solve?
 
@@ -55,6 +55,6 @@ When a new pipeline touches an LLM or external API (build its fault column befor
 
 ## Sibling skills
 
-- when-code-when-llm (https://github.com/shimo4228/when-code-when-llm): task-level structural-vs-semantic tool choice
+- when-code-when-llm (https://github.com/shimo4228/when-code-when-llm): task-level structural-vs-semantic tool choice (frozen record, no longer developed)
 - code-and-llm-collaboration (https://github.com/shimo4228/code-and-llm-collaboration): pipeline-level code/LLM layering patterns
 - llm-agent-security-principles (https://github.com/shimo4228/llm-agent-security-principles): security-by-absence and defense patterns for LLM agents

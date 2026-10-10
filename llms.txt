@@ -1,6 +1,6 @@
 # chaos-tdd-fault-injection
 
-> A Claude Code skill (MIT) for chaos-TDD on LLM agent pipelines: build a fault catalog from operational bug history, inject each fault deterministically at existing seams (interface-seam fake + HTTP-layer mock, never a production hook), and let the fault-injection test state the desired guarded behavior first so the minimal guard — usually a reason-coded abstain — ships in the same PR.
+> An Agent Skill (MIT; developed and tested on Claude Code) for chaos-TDD on LLM agent pipelines: build a fault catalog from operational bug history, inject each fault deterministically at existing seams (interface-seam fake + HTTP-layer mock, never a production hook), and let the fault-injection test state the desired guarded behavior first so the minimal guard — usually a reason-coded abstain — ships in the same PR.
 
 ## Core documentation
 
@@ -11,19 +11,19 @@
 ## Architecture
 
 - 5 disciplines: **catalog from operational history** (mine incidents, diff against test coverage), **existing seams only** (schedule-driven interface fake + request-mock HTTP layer), **determinism** (seeded schedules, derandomized property fuzz with @example pins, latency expressed as injected timeout exceptions, run-twice-identical PASS criterion), **steady state on observable channels** (telemetry outcome/error_kind + greppable reason=<code> tokens), **TDD contract** (the chaos test asserts behavior that does not exist yet; the guard lands in the same PR)
-- Rejected altitudes: chaostoolkit/toxiproxy (daemon/proxy chaos for distributed topologies — a single-process agent injects in-process), production random chaos (irreplaceable stored data, flaky CI)
+- Rejected altitudes: chaostoolkit/toxiproxy (infrastructure-level chaos between services — a single-process agent injects in-process), production random chaos (irreplaceable stored data, flaky CI)
 - First-deployment findings: non-string schema violations via str() promotion, JSON null mis-routed by a None-as-failure sentinel, fault kinds indistinguishable in telemetry
 - Curation model: manually curated (no script sync) — generalized publication of the operational variant running inside the Contemplative Agent project (paired decision record: ADR-0077)
 
 ## Standard reference
 
-- [Agent Skill specification](https://agentskills.io/specification): the Claude Code skill format used by this repo
-- [SkillsMP marketplace](https://agentskills.io/specification): one-step install via `/skills add`
+- [Agent Skill specification](https://agentskills.io/specification): the open Agent Skills format used by this repo
+- Install: clone the repo and copy `skills/chaos-tdd-fault-injection` into `~/.claude/skills/` (see [README.md](README.md)); other Agent Skills-compatible agents take the same folder in their own skills directory
 
 ## Sibling skills
 
-- [when-code-when-llm](https://github.com/shimo4228/when-code-when-llm): task-level structural-vs-semantic tool choice — "which tool for this one property"
+- [when-code-when-llm](https://github.com/shimo4228/when-code-when-llm) (frozen record, no longer developed): task-level structural-vs-semantic tool choice — "which tool for this one property"
 - [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration): pipeline-level patterns for layering deterministic code and LLM calls
 - [llm-agent-security-principles](https://github.com/shimo4228/llm-agent-security-principles): security-by-absence and defense patterns for LLM agents
-- [search-first](https://github.com/shimo4228/search-first): research-before-coding workflow with a 4-way Adopt / Extend / Compose / Build decision
+- [search-first](https://github.com/shimo4228/search-first): makes the agent search registries, code, papers and official docs before building; the caller picks Adopt, Adopt-part or Build
 - [skill-comply](https://github.com/shimo4228/skill-comply): measures whether agents actually follow skill / rule definitions
