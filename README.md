@@ -6,7 +6,7 @@ An [Agent Skill](https://agentskills.io/specification) for **chaos-TDD on LLM ag
 
 You build a fault catalog (the faults from your own incident history that no test covers yet), inject each fault deterministically at seams that already exist (an interface or HTTP layer where a test fake can replace the LLM backend), and let the fault-injection test state the desired guarded behavior *first*. The minimal production guard then lands in the same PR, usually as a reason-coded abstain: the pipeline declines to produce output and logs a machine-readable reason such as `reason=shape_violation`.
 
-The skill is one Markdown file, [`skills/chaos-tdd-fault-injection/SKILL.md`](skills/chaos-tdd-fault-injection/SKILL.md). Its examples are Python (pytest, hypothesis, responses); the pattern itself is language-agnostic. If your backend has no interface to fake, the HTTP layer still works: a request-mocking library such as `responses` registers fault responses on the URL the code calls, without touching production code. It runs nothing on its own, sends nothing off your machine, and needs no API key.
+The skill is one Markdown file, [`skills/chaos-tdd-fault-injection/SKILL.md`](skills/chaos-tdd-fault-injection/SKILL.md). Its examples are Python (pytest, hypothesis, responses); the pattern itself is language-agnostic. If your backend has no interface to fake, the HTTP layer still works: a request-mocking library such as `responses` registers fault responses on the URL the code calls, without touching production code. It runs no code of its own and needs no API key; the agent that loads it sends its text to that agent's model, as with any skill.
 
 ## Install
 

@@ -25,5 +25,5 @@
 - [when-code-when-llm](https://github.com/shimo4228/when-code-when-llm) (frozen record, no longer developed): task-level structural-vs-semantic tool choice — "which tool for this one property"
 - [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration): pipeline-level patterns for layering deterministic code and LLM calls
 - [llm-agent-security-principles](https://github.com/shimo4228/llm-agent-security-principles): security-by-absence and defense patterns for LLM agents
-- [search-first](https://github.com/shimo4228/search-first): research-before-coding workflow with a 4-way Adopt / Extend / Compose / Build decision
+- [search-first](https://github.com/shimo4228/search-first): makes the agent search registries, code, papers and official docs before building; the caller picks Adopt, Adopt-part or Build
 - [skill-comply](https://github.com/shimo4228/skill-comply): measures whether agents actually follow skill / rule definitions
